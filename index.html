@@ -356,10 +356,12 @@
             
             // 🟢 เรียงลำดับข้อมูลระดับการศึกษา ปวช. 1 -> ปวช. 2 -> ปวส. 1 ในกราฟด้วย
             const eduCounts = countData(dataArray, 'ระดับการศึกษา');
-            const eduOrder = ['ปวช. 1', 'ปวช. 2', 'ปวส. 1'];
             const sortedEduLabels = Object.keys(eduCounts).sort((a, b) => {
-                let indexA = eduOrder.indexOf(a.trim());
-                let indexB = eduOrder.indexOf(b.trim());
+                let cleanA = a.replace(/\s+/g, '');
+                let cleanB = b.replace(/\s+/g, '');
+                const order = ['ปวช.1', 'ปวช.2', 'ปวส.1'];
+                let indexA = order.indexOf(cleanA);
+                let indexB = order.indexOf(cleanB);
                 if (indexA === -1) indexA = 99;
                 if (indexB === -1) indexB = 99;
                 return indexA - indexB;
