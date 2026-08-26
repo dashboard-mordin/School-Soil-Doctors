@@ -19,7 +19,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Sarabun', sans-serif; background-color: #f5f3eb; display: flex; height: 100vh; overflow: hidden; }
 
-        .sidebar { width: 320px; background-color: #1b4d32; color: white; padding: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; }
+        .sidebar { width: 320px; background: linear-gradient(180deg, #2d6a4f 0%, #15422e 100%); color: white; padding: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; }
         .logo-area { text-align: center; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.2); }
         .logo-area h2 { font-size: 18px; margin-top: 10px; font-weight: 500; line-height: 1.4; }
         .filter-box { background-color: white; color: #333; border-radius: 8px; padding: 15px; display: flex; flex-direction: column; gap: 12px; border: 2px dashed rgba(27, 77, 50, 0.3); }
@@ -128,7 +128,7 @@
                     <option value="วิทยาลัยเกษตรและเทคโนโลยีตาก">วิทยาลัยเกษตรและเทคโนโลยีตาก</option>
                 </select>
             </div>
-            <!-- 🟢 เพิ่มปุ่มดาวน์โหลด Excel ต่อจากปุ่มล้างตัวกรอง -->
+            <!-- ปุ่มกด -->
             <button class="btn btn-clear" id="btnReset">↻ ล้างตัวกรอง</button>
             <button class="btn btn-excel" id="btnDownloadExcel">⬇️ ดาวน์โหลด Excel</button>
         </div>
@@ -209,14 +209,15 @@
     <!-- JS ของ Leaflet -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-    <!-- 🟢 เรียกใช้ Library สำหรับสร้างไฟล์ Excel -->
+    <!-- เรียกใช้ Library สำหรับสร้างไฟล์ Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <script>
-        const themeColors = [
-            '#FF6384', '#36A2EB', '#FFCE56', '#4CAF50', '#9966FF', '#FF9F40', 
-            '#E91E63', '#00BCD4', '#8BC34A', '#795548', '#607D8B', '#3F51B5'
-        ];
+        // 🟢 กำหนดชุดสีแยกสำหรับแต่ละกราฟเพื่อไม่ให้สีซ้ำกัน
+        const colorArea = ['#ff7691', '#4baaf0', '#ffdb73', '#62ba65', '#b388ff']; // กราฟพื้นที่ทำเกษตร (สีสว่าง)
+        const colorDistrict = ['#ef5350', '#29b6f6', '#ffee58', '#66bb6a', '#ab47bc', '#ffa726', '#ec407a', '#26c6da', '#9ccc65', '#8d6e63']; // กราฟอำเภอ (สีสด)
+        const colorEdu = ['#f06292', '#4fc3f7', '#ffd54f', '#4db6ac', '#7986cb']; // กราฟระดับการศึกษา (สีพาสเทล)
+        const colorCrop = ['#d32f2f', '#1976d2', '#fbc02d', '#388e3c', '#7b1fa2']; // กราฟชนิดพืช (สีเข้ม)
 
         Chart.defaults.font.family = "'Sarabun', sans-serif";
         Chart.defaults.color = '#333';
@@ -354,7 +355,7 @@
             const areaCounts = countData(dataArray, 'พื้นที่การทำเกษตร');
             const distCounts = countData(dataArray, 'อำเภอ');
             
-            // 🟢 เรียงลำดับข้อมูลระดับการศึกษา ปวช. 1 -> ปวช. 2 -> ปวส. 1 ในกราฟด้วย
+            // เรียงลำดับข้อมูลระดับการศึกษา ปวช. 1 -> ปวช. 2 -> ปวส. 1 ในกราฟด้วย
             const eduCounts = countData(dataArray, 'ระดับการศึกษา');
             const sortedEduLabels = Object.keys(eduCounts).sort((a, b) => {
                 let cleanA = a.replace(/\s+/g, '');
@@ -386,7 +387,7 @@
                 type: 'pie',
                 data: {
                     labels: Object.keys(areaCounts),
-                    datasets: [{ data: Object.values(areaCounts), backgroundColor: themeColors }]
+                    datasets: [{ data: Object.values(areaCounts), backgroundColor: colorArea }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
             });
@@ -395,7 +396,7 @@
                 type: 'bar',
                 data: {
                     labels: Object.keys(distCounts),
-                    datasets: [{ label: 'จำนวนคน', data: Object.values(distCounts), backgroundColor: themeColors }]
+                    datasets: [{ label: 'จำนวนคน', data: Object.values(distCounts), backgroundColor: colorDistrict }]
                 },
                 options: { 
                     responsive: true, maintainAspectRatio: false, 
@@ -411,7 +412,7 @@
                 type: 'doughnut',
                 data: {
                     labels: sortedEduLabels,
-                    datasets: [{ data: sortedEduData, backgroundColor: themeColors }]
+                    datasets: [{ data: sortedEduData, backgroundColor: colorEdu }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
             });
@@ -420,7 +421,7 @@
                 type: 'bar',
                 data: {
                     labels: sortedCrops.length > 0 ? sortedCrops : ['ไม่มีข้อมูล'],
-                    datasets: [{ label: 'จำนวน (รายการ)', data: topCropValues.length > 0 ? topCropValues : [0], backgroundColor: themeColors }]
+                    datasets: [{ label: 'จำนวน (รายการ)', data: topCropValues.length > 0 ? topCropValues : [0], backgroundColor: colorCrop }]
                 },
                 options: { 
                     indexAxis: 'y', responsive: true, maintainAspectRatio: false, 
@@ -482,14 +483,13 @@
             }
         });
 
-        // 🟢 ระบบสำหรับปุ่มดาวน์โหลดไฟล์ Excel
+        // ระบบดาวน์โหลดไฟล์ Excel
         btnDownloadExcel.addEventListener('click', () => {
             if(!currentDisplayData || currentDisplayData.length === 0) {
                 alert("ไม่มีข้อมูลสำหรับดาวน์โหลด");
                 return;
             }
 
-            // จัดรูปแบบข้อมูล: เลือกมาเฉพาะคอลัมน์ที่ต้องการแสดงผล (กรอง PDPA ทิ้งแล้ว)
             let exportData = currentDisplayData.map(row => {
                 let formattedRow = {};
                 displayHeaders.forEach(header => {
@@ -498,12 +498,10 @@
                 return formattedRow;
             });
 
-            // สร้างไฟล์ Excel ผ่านไลบรารี SheetJS
             let ws = XLSX.utils.json_to_sheet(exportData);
             let wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "รายชื่อหมอดินอาสา");
             
-            // สั่งดาวน์โหลด
             XLSX.writeFile(wb, "ข้อมูลหมอดินอาสาในโรงเรียน.xlsx");
         });
     </script>
