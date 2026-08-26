@@ -5,22 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบฐานข้อมูลโครงการหมอดินในโรงเรียน</title>
     
-    <!-- เรียกใช้ฟอนต์ Sarabun -->
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
     
-    <!-- CSS ของ Leaflet (แผนที่) -->
+    <!-- CSS ของ Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
 
-    <!-- เรียกใช้ Chart.js สำหรับวาดกราฟ -->
+    <!-- 🟢 เรียกใช้ Chart.js สำหรับวาดกราฟ -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Sarabun', sans-serif; background-color: #f5f3eb; display: flex; height: 100vh; overflow: hidden; }
 
-        /* ส่วนเมนูด้านซ้าย (Sidebar) */
         .sidebar { width: 320px; background-color: #1b4d32; color: white; padding: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; }
         .logo-area { text-align: center; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.2); }
         .logo-area h2 { font-size: 18px; margin-top: 10px; font-weight: 500; line-height: 1.4; }
@@ -31,7 +29,6 @@
         .btn-clear { background-color: #a49683; color: white; }
         .btn-clear:hover { background-color: #8c7e6a; transform: scale(1.02); }
 
-        /* ส่วนเนื้อหาหลักด้านขวา (Main Content) */
         .main-content { 
             flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; 
             background-color: #f5f3eb;
@@ -40,7 +37,7 @@
         
         .summary-cards { display: flex; gap: 15px; flex-shrink: 0; }
         
-        /* 🟢 กล่องตัวเลข */
+        /* 🟢 กล่องตัวเลข (สไตล์เส้นขอบหนา พื้นหลังสีอ่อน และจัดชิดซ้าย) */
         .card { flex: 1; padding: 20px 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); position: relative; overflow: hidden; background-color: #f2f7f4; border-left: 8px solid #1b4d32; text-align: left; }
         .card:nth-child(2) { background-color: #eff5fb; border-left-color: #3174b8; }
         .card:nth-child(3) { background-color: #fcf4ee; border-left-color: #e57c23; }
@@ -49,19 +46,17 @@
         .card:nth-child(2) .card-value { color: #3174b8; }
         .card:nth-child(3) .card-value { color: #e57c23; }
 
-        /* การ์ตูนกล่องตัวเลข */
+        /* ปรับ opacity: 1 ให้การ์ตูนกล่องตัวเลขเข้มชัดเจน */
         .card::after { position: absolute; bottom: -10px; right: 5px; font-size: 65px; opacity: 1; z-index: 0; }
         .card:nth-child(1)::after { content: '🧑‍🌾'; } 
         .card:nth-child(2)::after { content: '🚜'; } 
         .card:nth-child(3)::after { content: '🌻'; } 
 
-        /* กล่องกราฟ */
+        /* กล่องกราฟ + การ์ตูนมุมขวาบนแบบสีเข้ม (opacity: 1) เปลี่ยนพื้นหลังให้เหมือน Zero Waste */
         .content-box { background: linear-gradient(180deg, #ffffff 0%, #f1f8e9 100%); border-radius: 15px; padding: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); border: 1px solid rgba(255,255,255,0.8); display: flex; flex-direction: column; position: relative; overflow: hidden; }
         .content-header { font-size: 16px; font-weight: bold; color: #1b4d32; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px dashed rgba(38, 89, 50, 0.2); position: relative; z-index: 1; }
         
         .map-box, .pie-box, .chart-box { position: relative; }
-        
-        /* การ์ตูนมุมขวาบนแบบสีเข้ม (opacity: 1) */
         .pie-box::before { content: '🏡'; position: absolute; top: 10px; right: 15px; font-size: 35px; opacity: 1; z-index: 0; }
         .chart-box:nth-child(1)::before { content: '🐛'; position: absolute; top: 10px; right: 15px; font-size: 35px; opacity: 1; z-index: 0; }
         .chart-box:nth-child(2)::before { content: '📚'; position: absolute; top: 10px; right: 15px; font-size: 35px; opacity: 1; z-index: 0; }
@@ -87,9 +82,13 @@
         tr:nth-child(even) { background-color: #fdfdfd; }
         tr:hover { background-color: #f1f8e9; } 
         
-        /* 🟢 จัดกึ่งกลางกราฟวงกลม: ลด Padding ด้านบน(0px) เพิ่มด้านล่าง(30px) ให้ขยับขึ้นตรงกลาง */
+        /* จัดกึ่งกลางกราฟวงกลม: ลด Padding ด้านบน(0px) เพิ่มด้านล่าง(30px) ให้ขยับขึ้นตรงกลาง */
         .pie-chart-container { position: relative; height: 100%; width: 100%; flex: 1; padding: 0px 20px 30px 20px; z-index: 1; }
         .chart-container { position: relative; height: 100%; width: 100%; flex: 1; z-index: 1; }
+
+        /* 🟢 ปุ่มดาวน์โหลด Excel */
+        .btn-excel { background-color: #2e7d32; color: white; }
+        .btn-excel:hover { background-color: #1b4d32; transform: scale(1.02); }
     </style>
 </head>
 <body>
@@ -114,18 +113,28 @@
             </div>
             <div class="filter-group">
                 <label>🎓 ระดับการศึกษา:</label>
+                <!-- 🟢 เรียงลำดับ ปวช. 1 -> ปวช. 2 -> ปวส. 1 -->
                 <select id="eduFilter">
                     <option value="">-- ทุกระดับ --</option>
-                    <option value="ปวส. 1">ปวส. 1</option>
+                    <option value="ปวช. 1">ปวช. 1</option>
                     <option value="ปวช. 2">ปวช. 2</option>
+                    <option value="ปวส. 1">ปวส. 1</option>
                 </select>
             </div>
+            <div class="filter-group">
+                <label>🏫 สถานศึกษา:</label>
+                <select id="schoolFilter">
+                    <option value="">-- ทุกสถานศึกษา --</option>
+                    <option value="วิทยาลัยเกษตรและเทคโนโลยีตาก">วิทยาลัยเกษตรและเทคโนโลยีตาก</option>
+                </select>
+            </div>
+            <!-- 🟢 เพิ่มปุ่มดาวน์โหลด Excel ต่อจากปุ่มล้างตัวกรอง -->
             <button class="btn btn-clear" id="btnReset">↻ ล้างตัวกรอง</button>
+            <button class="btn btn-excel" id="btnDownloadExcel">⬇️ ดาวน์โหลด Excel</button>
         </div>
         
         <div style="text-align: center; margin-top: auto; opacity: 0.8;">
             <span style="font-size: 50px;">🌱✨</span>
-            
         </div>
     </aside>
 
@@ -200,6 +209,8 @@
     <!-- JS ของ Leaflet -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+    <!-- 🟢 เรียกใช้ Library สำหรับสร้างไฟล์ Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <script>
         const themeColors = [
@@ -226,6 +237,7 @@
         const API_URL = 'https://script.google.com/macros/s/AKfycbxLLU6rmxz4tWU1AI-8N3tY-qMWx-3Iox8HSAQh8GRgQ0vn2jX8VyegTXc3BnJWu8cU/exec';
         
         let allData = []; 
+        let currentDisplayData = []; // ตัวแปรไว้จำว่าตอนนี้มีข้อมูลอะไรแสดงอยู่ (สำหรับโหลดลง Excel)
         let displayHeaders = []; 
 
         function shouldHide(header) {
@@ -282,7 +294,8 @@
                         row['พื้นที่การทำเกษตร'] = areaAnswers.length > 0 ? areaAnswers.join(', ') : '-';
                     });
 
-                    updateDashboard(allData);
+                    currentDisplayData = [...allData];
+                    updateDashboard(currentDisplayData);
                     
                     const today = new Date();
                     document.getElementById('lastUpdate').textContent = today.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
@@ -340,7 +353,18 @@
         function renderCharts(dataArray) {
             const areaCounts = countData(dataArray, 'พื้นที่การทำเกษตร');
             const distCounts = countData(dataArray, 'อำเภอ');
+            
+            // 🟢 เรียงลำดับข้อมูลระดับการศึกษา ปวช. 1 -> ปวช. 2 -> ปวส. 1 ในกราฟด้วย
             const eduCounts = countData(dataArray, 'ระดับการศึกษา');
+            const eduOrder = ['ปวช. 1', 'ปวช. 2', 'ปวส. 1'];
+            const sortedEduLabels = Object.keys(eduCounts).sort((a, b) => {
+                let indexA = eduOrder.indexOf(a.trim());
+                let indexB = eduOrder.indexOf(b.trim());
+                if (indexA === -1) indexA = 99;
+                if (indexB === -1) indexB = 99;
+                return indexA - indexB;
+            });
+            const sortedEduData = sortedEduLabels.map(k => eduCounts[k]);
             
             const cropCounts = {};
             dataArray.forEach(row => {
@@ -384,8 +408,8 @@
             chartEduInst = new Chart(document.getElementById('eduChart'), {
                 type: 'doughnut',
                 data: {
-                    labels: Object.keys(eduCounts),
-                    datasets: [{ data: Object.values(eduCounts), backgroundColor: themeColors }]
+                    labels: sortedEduLabels,
+                    datasets: [{ data: sortedEduData, backgroundColor: themeColors }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
             });
@@ -410,12 +434,15 @@
         const searchInput = document.getElementById('searchInput');
         const spdFilter = document.getElementById('spdFilter');
         const eduFilter = document.getElementById('eduFilter');
+        const schoolFilter = document.getElementById('schoolFilter');
         const btnReset = document.getElementById('btnReset');
+        const btnDownloadExcel = document.getElementById('btnDownloadExcel');
 
         function filterData() {
             const searchText = searchInput.value.toLowerCase().replace(/\s+/g, '');
             const spdValue = spdFilter.value.toLowerCase().replace(/\s+/g, '');
             const eduValue = eduFilter.value.toLowerCase().replace(/\s+/g, '');
+            const schoolValue = schoolFilter.value.toLowerCase().replace(/\s+/g, '');
             
             if(allData.length === 0) return; 
 
@@ -423,27 +450,60 @@
                 const rowName = (row['ชื่อ-สกุล'] || '').toString().toLowerCase().replace(/\s+/g, '');
                 const rowSpd = ((row['สพด.ที่รับผิดชอบ'] || '') + (row['จังหวัด'] || '')).toString().toLowerCase().replace(/\s+/g, ''); 
                 const rowEdu = (row['ระดับการศึกษา'] || '').toString().toLowerCase().replace(/\s+/g, '');
+                const rowSchool = (row['โรงเรียน/สถานศึกษา'] || '').toString().toLowerCase().replace(/\s+/g, '');
 
                 const matchName = searchText === '' || rowName.includes(searchText);
                 const matchSpd = spdValue === '' || rowSpd.includes(spdValue);
                 const matchEdu = eduValue === '' || rowEdu.includes(eduValue);
+                const matchSchool = schoolValue === '' || rowSchool.includes(schoolValue);
 
-                return matchName && matchSpd && matchEdu;
+                return matchName && matchSpd && matchEdu && matchSchool;
             });
 
-            updateDashboard(filtered);
+            currentDisplayData = filtered;
+            updateDashboard(currentDisplayData);
         }
 
         searchInput.addEventListener('input', filterData);
         spdFilter.addEventListener('change', filterData);
         eduFilter.addEventListener('change', filterData);
+        schoolFilter.addEventListener('change', filterData);
 
         btnReset.addEventListener('click', () => {
             searchInput.value = '';
             spdFilter.value = '';
             eduFilter.value = '';
-            if(allData.length > 0) updateDashboard(allData);
+            schoolFilter.value = '';
+            if(allData.length > 0) {
+                currentDisplayData = [...allData];
+                updateDashboard(currentDisplayData);
+            }
+        });
+
+        // 🟢 ระบบสำหรับปุ่มดาวน์โหลดไฟล์ Excel
+        btnDownloadExcel.addEventListener('click', () => {
+            if(!currentDisplayData || currentDisplayData.length === 0) {
+                alert("ไม่มีข้อมูลสำหรับดาวน์โหลด");
+                return;
+            }
+
+            // จัดรูปแบบข้อมูล: เลือกมาเฉพาะคอลัมน์ที่ต้องการแสดงผล (กรอง PDPA ทิ้งแล้ว)
+            let exportData = currentDisplayData.map(row => {
+                let formattedRow = {};
+                displayHeaders.forEach(header => {
+                    formattedRow[header] = row[header] || "-";
+                });
+                return formattedRow;
+            });
+
+            // สร้างไฟล์ Excel ผ่านไลบรารี SheetJS
+            let ws = XLSX.utils.json_to_sheet(exportData);
+            let wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "รายชื่อหมอดินอาสา");
+            
+            // สั่งดาวน์โหลด
+            XLSX.writeFile(wb, "ข้อมูลหมอดินอาสาในโรงเรียน.xlsx");
         });
     </script>
 </body>
-</html>>
+</html>
