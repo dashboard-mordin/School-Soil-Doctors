@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบฐานข้อมูลโครงการหมอดินในโรงเรียน</title>
+    <title>ระบบฐานข้อมูลโครงการหมอดินในโรงเรียน (Junior Soil Doctor)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
     
@@ -37,7 +37,7 @@
         
         .summary-cards { display: flex; gap: 15px; flex-shrink: 0; }
         
-        /* 🟢 กล่องตัวเลข (สไตล์เส้นขอบหนา พื้นหลังสีอ่อน และจัดชิดซ้าย) */
+        /* 🟢 กล่องตัวเลข */
         .card { flex: 1; padding: 20px 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); position: relative; overflow: hidden; background-color: #f2f7f4; border-left: 8px solid #1b4d32; text-align: left; }
         .card:nth-child(2) { background-color: #eff5fb; border-left-color: #3174b8; }
         .card:nth-child(3) { background-color: #fcf4ee; border-left-color: #e57c23; }
@@ -52,7 +52,7 @@
         .card:nth-child(2)::after { content: '🚜'; } 
         .card:nth-child(3)::after { content: '🌻'; } 
 
-        /* กล่องกราฟ + การ์ตูนมุมขวาบนแบบสีเข้ม (opacity: 1) เปลี่ยนพื้นหลังให้เหมือน Zero Waste */
+        /* กล่องกราฟ */
         .content-box { background: linear-gradient(180deg, #ffffff 0%, #f1f8e9 100%); border-radius: 15px; padding: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); border: 1px solid rgba(255,255,255,0.8); display: flex; flex-direction: column; position: relative; overflow: hidden; }
         .content-header { font-size: 16px; font-weight: bold; color: #1b4d32; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px dashed rgba(38, 89, 50, 0.2); position: relative; z-index: 1; }
         
@@ -82,7 +82,6 @@
         tr:nth-child(even) { background-color: #fdfdfd; }
         tr:hover { background-color: #f1f8e9; } 
         
-        /* จัดกึ่งกลางกราฟวงกลม: ลด Padding ด้านบน(0px) เพิ่มด้านล่าง(30px) ให้ขยับขึ้นตรงกลาง */
         .pie-chart-container { position: relative; height: 100%; width: 100%; flex: 1; padding: 0px 20px 30px 20px; z-index: 1; }
         .chart-container { position: relative; height: 100%; width: 100%; flex: 1; z-index: 1; }
 
@@ -96,13 +95,21 @@
     <aside class="sidebar">
         <div class="logo-area">
             <div style="font-size: 40px; background: white; width: 80px; height: 80px; line-height: 80px; border-radius: 50%; margin: 0 auto; color: #1b4d32; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">🧑‍🌾</div>
-            <h2>ระบบฐานข้อมูล<br>โครงการหมอดินในโรงเรียน</h2>
+            <h2>ระบบฐานข้อมูล<br>โครงการหมอดินในโรงเรียน<br><span style="font-size: 14px; font-weight: normal;">(Junior Soil Doctor)</span></h2>
         </div>
 
         <div class="filter-box">
             <div class="filter-group">
                 <label>🔍 ค้นหาชื่อ-สกุล:</label>
                 <input type="text" id="searchInput" placeholder="พิมพ์ชื่อที่ต้องการค้นหา...">
+            </div>
+            <div class="filter-group">
+                <label>🏷️ รุ่นที่:</label>
+                <select id="genFilter">
+                    <option value="">-- ทุกรุ่น --</option>
+                    <option value="รุ่นที่ 1">รุ่นที่ 1</option>
+                    <option value="รุ่นที่ 2">รุ่นที่ 2</option>
+                </select>
             </div>
             <div class="filter-group">
                 <label>📍 สพด.:</label>
@@ -113,7 +120,6 @@
             </div>
             <div class="filter-group">
                 <label>🎓 ระดับการศึกษา:</label>
-                <!-- 🟢 เรียงลำดับ ปวช. 1 -> ปวช. 2 -> ปวส. 1 -->
                 <select id="eduFilter">
                     <option value="">-- ทุกระดับ --</option>
                     <option value="ปวช. 1">ปวช. 1</option>
@@ -247,8 +253,10 @@
             if (h === 'เบอร์โทร' || h === 'เบอร์โทรศัพท์' || h.includes('เบอร์')) return true;
             if (h.includes('พื้นฐานความรู้หรือประสบการณ์')) return true;
             if (h.includes('เคยรู้จัก')) return true;
-            if (h.includes('เคยเข้าร่วมกิจกรรม')) return true;
             if (h.includes('กิจกรรมที่เคยเข้าร่วม')) return true;
+            if (h.includes('เคยเข้าร่วมกิจกรรมด้านการเกษตรของโรงเรียนมาก่อนหรือไม่')) return true;
+            // 🟢 ซ่อนคอลัมน์ตามที่ต้องการ (แต่ยังใช้กรองข้อมูลได้)
+            if (h === 'รุ่นของหมอดิน' || h === 'สพด.ที่รับผิดชอบ' || h === 'โรงเรียน/สถานศึกษา') return true;
             return false;
         }
 
@@ -438,6 +446,7 @@
         const spdFilter = document.getElementById('spdFilter');
         const eduFilter = document.getElementById('eduFilter');
         const schoolFilter = document.getElementById('schoolFilter');
+        const genFilter = document.getElementById('genFilter');
         const btnReset = document.getElementById('btnReset');
         const btnDownloadExcel = document.getElementById('btnDownloadExcel');
 
@@ -446,6 +455,7 @@
             const spdValue = spdFilter.value.toLowerCase().replace(/\s+/g, '');
             const eduValue = eduFilter.value.toLowerCase().replace(/\s+/g, '');
             const schoolValue = schoolFilter.value.toLowerCase().replace(/\s+/g, '');
+            const genValue = genFilter.value.toLowerCase().replace(/\s+/g, '');
             
             if(allData.length === 0) return; 
 
@@ -454,13 +464,15 @@
                 const rowSpd = ((row['สพด.ที่รับผิดชอบ'] || '') + (row['จังหวัด'] || '')).toString().toLowerCase().replace(/\s+/g, ''); 
                 const rowEdu = (row['ระดับการศึกษา'] || '').toString().toLowerCase().replace(/\s+/g, '');
                 const rowSchool = (row['โรงเรียน/สถานศึกษา'] || '').toString().toLowerCase().replace(/\s+/g, '');
+                const rowGen = (row['รุ่นของหมอดิน'] || '').toString().toLowerCase().replace(/\s+/g, '');
 
                 const matchName = searchText === '' || rowName.includes(searchText);
                 const matchSpd = spdValue === '' || rowSpd.includes(spdValue);
                 const matchEdu = eduValue === '' || rowEdu.includes(eduValue);
                 const matchSchool = schoolValue === '' || rowSchool.includes(schoolValue);
+                const matchGen = genValue === '' || rowGen.includes(genValue);
 
-                return matchName && matchSpd && matchEdu && matchSchool;
+                return matchName && matchSpd && matchEdu && matchSchool && matchGen;
             });
 
             currentDisplayData = filtered;
@@ -471,12 +483,14 @@
         spdFilter.addEventListener('change', filterData);
         eduFilter.addEventListener('change', filterData);
         schoolFilter.addEventListener('change', filterData);
+        genFilter.addEventListener('change', filterData);
 
         btnReset.addEventListener('click', () => {
             searchInput.value = '';
             spdFilter.value = '';
             eduFilter.value = '';
             schoolFilter.value = '';
+            genFilter.value = '';
             if(allData.length > 0) {
                 currentDisplayData = [...allData];
                 updateDashboard(currentDisplayData);
