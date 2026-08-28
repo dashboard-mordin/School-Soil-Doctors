@@ -22,79 +22,56 @@
         .sidebar { width: 320px; background: linear-gradient(180deg, #2d6a4f 0%, #15422e 100%); color: white; padding: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; }
         .logo-area { text-align: center; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.2); }
         .logo-area h2 { font-size: 18px; margin-top: 10px; font-weight: 500; line-height: 1.4; }
-        .filter-box { background-color: white; color: #333; border-radius: 8px; padding: 15px; display: flex; flex-direction: column; gap: 12px; border: 2px dashed rgba(27, 77, 50, 0.3); }
-        .filter-group label { font-size: 14px; font-weight: 600; margin-bottom: 5px; display: block; color: #1b4d32; }
+        .filter-box { background-color: white; color: #333; border-radius: 8px; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
+        .filter-group label { font-size: 14px; font-weight: 600; margin-bottom: 5px; display: block; }
         .filter-group input, .filter-group select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; }
-        .btn { padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-family: inherit; font-weight: bold; text-align: center; transition: 0.2s; }
+        .btn { padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-family: inherit; font-weight: bold; text-align: center; }
         .btn-clear { background-color: #a49683; color: white; }
-        .btn-clear:hover { background-color: #8c7e6a; transform: scale(1.02); }
 
-        .main-content { 
-            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; 
-            background-color: #f5f3eb;
-            background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M29.293 42.414c-.958-1.536-1.503-3.21-1.636-4.945.894 1.25 1.956 2.378 3.167 3.36 1.488 1.22 3.162 2.213 4.962 2.946-.66-.99-1.206-2.062-1.62-3.19-.887-2.42-1.24-5.06-1.026-7.7.272-3.327 1.282-6.52 2.942-9.405 1.554-2.7 3.65-5.093 6.13-7.006 1.543-1.19 3.23-2.186 5.01-2.96 1.96-.853 4.04-1.42 6.18-1.68 1.25-.152 2.52-.206 3.79-.16.27.01.53.03.8.06-1.2.04-2.4.15-3.58.33-2.28.35-4.52.98-6.64 1.86-1.92.8-3.73 1.86-5.38 3.14-2.67 2.08-4.94 4.68-6.62 7.6-1.8 3.12-2.9 6.57-3.2 10.16-.23 2.85.15 5.7 1.1 8.35.45 1.24 1.05 2.42 1.78 3.5.15.22.3.44.47.66z' fill='%231b4d32' fill-opacity='0.04' fill-rule='evenodd'/%3E%3C/svg%3E");
-        }
+        .main-content { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
         
         .summary-cards { display: flex; gap: 15px; flex-shrink: 0; }
-        
-        /* 🟢 กล่องตัวเลข */
-        .card { flex: 1; padding: 20px 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); position: relative; overflow: hidden; background-color: #f2f7f4; border-left: 8px solid #1b4d32; text-align: left; }
+        .card { flex: 1; background: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 5px solid #1b4d32; }
         .card:nth-child(2) { background-color: #eff5fb; border-left-color: #3174b8; }
         .card:nth-child(3) { background-color: #fcf4ee; border-left-color: #e57c23; }
-        .card-title { font-size: 15px; color: #555; margin-bottom: 5px; position: relative; z-index: 1; font-weight: 600; }
-        .card-value { font-size: 32px; font-weight: bold; color: #1b4d32; position: relative; z-index: 1; }
-        .card:nth-child(2) .card-value { color: #3174b8; }
-        .card:nth-child(3) .card-value { color: #e57c23; }
-
-        /* ปรับ opacity: 1 ให้การ์ตูนกล่องตัวเลขเข้มชัดเจน */
-        .card::after { position: absolute; bottom: -10px; right: 5px; font-size: 65px; opacity: 1; z-index: 0; }
-        .card:nth-child(1)::after { content: '🧑‍🌾'; } 
-        .card:nth-child(2)::after { content: '🚜'; } 
-        .card:nth-child(3)::after { content: '🌻'; } 
-
-        /* กล่องกราฟ */
-        .content-box { background: linear-gradient(180deg, #ffffff 0%, #f1f8e9 100%); border-radius: 15px; padding: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); border: 1px solid rgba(255,255,255,0.8); display: flex; flex-direction: column; position: relative; overflow: hidden; }
-        .content-header { font-size: 16px; font-weight: bold; color: #1b4d32; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px dashed rgba(38, 89, 50, 0.2); position: relative; z-index: 1; }
+        .card-title { font-size: 14px; color: #666; margin-bottom: 5px; }
+        .card-value { font-size: 24px; font-weight: bold; color: #1b4d32; }
         
-        .map-box, .pie-box, .chart-box { position: relative; }
-        .pie-box::before { content: '🏡'; position: absolute; top: 10px; right: 15px; font-size: 35px; opacity: 1; z-index: 0; }
-        .chart-box:nth-child(1)::before { content: '🐛'; position: absolute; top: 10px; right: 15px; font-size: 35px; opacity: 1; z-index: 0; }
-        .chart-box:nth-child(2)::before { content: '📚'; position: absolute; top: 10px; right: 15px; font-size: 35px; opacity: 1; z-index: 0; }
-        .chart-box:nth-child(3)::before { content: '🌱'; position: absolute; top: 10px; right: 15px; font-size: 35px; opacity: 1; z-index: 0; }
+        
 
+        .content-box { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
+        .content-header { font-size: 16px; font-weight: bold; color: #1b4d32; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed #ccc; }
+        
         .map-row { display: flex; gap: 20px; flex-shrink: 0; }
-        .map-box { flex: 2; height: 420px; } 
+        .map-box { flex: 2; height: 420px; position: relative; } 
         .pie-box { flex: 1; height: 420px; } 
-        #map { width: 100%; height: 100%; border-radius: 8px; z-index: 1; border: 2px solid #e0e0e0; background: white; }
+        #map { width: 100%; height: 100%; border-radius: 4px; z-index: 1; border: 1px solid #ddd; }
         
         .chart-row { display: flex; gap: 20px; flex-shrink: 0; }
         .chart-box { flex: 1; height: 350px; min-width: 0; } 
 
-        .table-container { overflow: auto; max-height: 500px; width: 100%; border: 1px solid #ddd; border-radius: 8px; position: relative; z-index: 1; background: rgba(255,255,255,0.7); }
+        .table-container { overflow: auto; max-height: 500px; width: 100%; border: 1px solid #ddd; }
         .table-container::-webkit-scrollbar { width: 12px; height: 12px; }
         .table-container::-webkit-scrollbar-track { background: #f1f1f1; }
         .table-container::-webkit-scrollbar-thumb { background: #a8a8a8; border-radius: 6px; border: 2px solid #f1f1f1; }
         .table-container::-webkit-scrollbar-thumb:hover { background: #888; }
-        
-        table { width: 100%; border-collapse: collapse; white-space: nowrap; position: relative; z-index: 1; }
-        th, td { border: 1px solid #eee; padding: 12px 10px; text-align: left; font-size: 14px; }
+        table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+        th, td { border: 1px solid #eee; padding: 10px; text-align: left; font-size: 14px; }
         th { background-color: #4CAF50; color: white; position: sticky; top: 0; z-index: 10; font-weight: 600; min-width: 120px; } 
-        tr:nth-child(even) { background-color: #fdfdfd; }
-        tr:hover { background-color: #f1f8e9; } 
+        tr:nth-child(even) { background-color: #fafafa; }
+        tr:hover { background-color: #f1f1f1; }
         
-        .pie-chart-container { position: relative; height: 100%; width: 100%; flex: 1; padding: 0px 20px 30px 20px; z-index: 1; }
-        .chart-container { position: relative; height: 100%; width: 100%; flex: 1; z-index: 1; }
-
-        /* 🟢 ปุ่มดาวน์โหลด Excel */
-        .btn-excel { background-color: #2e7d32; color: white; }
-        .btn-excel:hover { background-color: #1b4d32; transform: scale(1.02); }
+        /* 🟢 เพิ่ม Padding ให้กราฟวงกลมเล็กลง */
+        .pie-chart-container { position: relative; height: 100%; width: 100%; flex: 1; padding: 20px; }
+        .chart-container { position: relative; height: 100%; width: 100%; flex: 1; }
     </style>
 </head>
 <body>
 
     <aside class="sidebar">
         <div class="logo-area">
-            <div style="font-size: 40px; background: white; width: 80px; height: 80px; line-height: 80px; border-radius: 50%; margin: 0 auto; color: #1b4d32; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">🧑‍🌾</div>
+            <!-- 🟢 โลโก้ปรับพื้นหลังขาวไว้ข้างใน ไม่มีกรอบขาวยื่นออกมา -->
+            <img src="https://i.postimg.cc/d1HmqvBj/S-199172133-removebg-preview.png" alt="โลโก้หมอดินในโรงเรียน" style="width: 110px; height: 110px; background: white; border-radius: 50%; margin: 0 auto; display: block; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
             <h2>ระบบฐานข้อมูล<br>โครงการหมอดินในโรงเรียน<br><span style="font-size: 14px; font-weight: normal;">(Junior Soil Doctor)</span></h2>
         </div>
 
@@ -120,6 +97,7 @@
             </div>
             <div class="filter-group">
                 <label>🎓 ระดับการศึกษา:</label>
+                <!-- 🟢 เรียงลำดับ ปวช. 1 -> ปวช. 2 -> ปวส. 1 -->
                 <select id="eduFilter">
                     <option value="">-- ทุกระดับ --</option>
                     <option value="ปวช. 1">ปวช. 1</option>
@@ -255,7 +233,7 @@
             if (h.includes('เคยรู้จัก')) return true;
             if (h.includes('กิจกรรมที่เคยเข้าร่วม')) return true;
             if (h.includes('เคยเข้าร่วมกิจกรรมด้านการเกษตรของโรงเรียนมาก่อนหรือไม่')) return true;
-            // 🟢 ซ่อนคอลัมน์ตามที่ต้องการ (แต่ยังใช้กรองข้อมูลได้)
+            // ซ่อนคอลัมน์ตามที่ต้องการ (แต่ยังใช้กรองข้อมูลได้)
             if (h === 'รุ่นของหมอดิน' || h === 'สพด.ที่รับผิดชอบ' || h === 'โรงเรียน/สถานศึกษา') return true;
             return false;
         }
