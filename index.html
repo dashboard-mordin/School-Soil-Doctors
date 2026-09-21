@@ -1,525 +1,525 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบฐานข้อมูลโครงการหมอดินในโรงเรียน (Junior Soil Doctor)</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
-    <!-- CSS ของ Leaflet -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบฐานข้อมูลโครงการหมอดินในโรงเรียน (Junior Soil Doctor)</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- CSS ของ Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
 
-    <!-- 🟢 เรียกใช้ Chart.js สำหรับวาดกราฟ -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- 🟢 เรียกใช้ Chart.js สำหรับวาดกราฟ -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Sarabun', sans-serif; background-color: #f5f3eb; display: flex; height: 100vh; overflow: hidden; }
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Sarabun', sans-serif; background-color: #f5f3eb; display: flex; height: 100vh; overflow: hidden; }
 
-        .sidebar { width: 320px; background: linear-gradient(180deg, #2d6a4f 0%, #15422e 100%); color: white; padding: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; }
-        .logo-area { text-align: center; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.2); }
-        .logo-area h2 { font-size: 18px; margin-top: 10px; font-weight: 500; line-height: 1.4; }
-        .filter-box { background-color: white; color: #333; border-radius: 8px; padding: 15px; display: flex; flex-direction: column; gap: 12px; border: 2px dashed rgba(27, 77, 50, 0.3); }
-        .filter-group label { font-size: 14px; font-weight: 600; margin-bottom: 5px; display: block; color: #1b4d32; }
-        .filter-group input, .filter-group select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; }
-        .btn { padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-family: inherit; font-weight: bold; text-align: center; transition: 0.2s; }
-        .btn-clear { background-color: #a49683; color: white; }
-        .btn-clear:hover { background-color: #8c7e6a; transform: scale(1.02); }
+        .sidebar { width: 320px; background: linear-gradient(180deg, #2d6a4f 0%, #15422e 100%); color: white; padding: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; }
+        .logo-area { text-align: center; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.2); }
+        .logo-area h2 { font-size: 18px; margin-top: 10px; font-weight: 500; line-height: 1.4; }
+        .filter-box { background-color: white; color: #333; border-radius: 8px; padding: 15px; display: flex; flex-direction: column; gap: 12px; border: 2px dashed rgba(27, 77, 50, 0.3); }
+        .filter-group label { font-size: 14px; font-weight: 600; margin-bottom: 5px; display: block; color: #1b4d32; }
+        .filter-group input, .filter-group select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; }
+        .btn { padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-family: inherit; font-weight: bold; text-align: center; transition: 0.2s; }
+        .btn-clear { background-color: #a49683; color: white; }
+        .btn-clear:hover { background-color: #8c7e6a; transform: scale(1.02); }
 
-        .main-content { 
-            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; 
-            background-color: #f5f3eb;
-            background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M29.293 42.414c-.958-1.536-1.503-3.21-1.636-4.945.894 1.25 1.956 2.378 3.167 3.36 1.488 1.22 3.162 2.213 4.962 2.946-.66-.99-1.206-2.062-1.62-3.19-.887-2.42-1.24-5.06-1.026-7.7.272-3.327 1.282-6.52 2.942-9.405 1.554-2.7 3.65-5.093 6.13-7.006 1.543-1.19 3.23-2.186 5.01-2.96 1.96-.853 4.04-1.42 6.18-1.68 1.25-.152 2.52-.206 3.79-.16.27.01.53.03.8.06-1.2.04-2.4.15-3.58.33-2.28.35-4.52.98-6.64 1.86-1.92.8-3.73 1.86-5.38 3.14-2.67 2.08-4.94 4.68-6.62 7.6-1.8 3.12-2.9 6.57-3.2 10.16-.23 2.85.15 5.7 1.1 8.35.45 1.24 1.05 2.42 1.78 3.5.15.22.3.44.47.66z' fill='%231b4d32' fill-opacity='0.04' fill-rule='evenodd'/%3E%3C/svg%3E");
-        }
-        
-        .summary-cards { display: flex; gap: 15px; flex-shrink: 0; }
-        
-        /* 🟢 กล่องตัวเลข (สไตล์เส้นขอบหนา พื้นหลังสีอ่อน และจัดชิดซ้าย) */
-        .card { flex: 1; padding: 20px 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); position: relative; overflow: hidden; background-color: #f2f7f4; border-left: 8px solid #1b4d32; text-align: left; }
-        .card:nth-child(2) { background-color: #eff5fb; border-left-color: #3174b8; }
-        .card:nth-child(3) { background-color: #fcf4ee; border-left-color: #e57c23; }
-        .card-title { font-size: 15px; color: #555; margin-bottom: 5px; position: relative; z-index: 1; font-weight: 600; }
-        .card-value { font-size: 32px; font-weight: bold; color: #1b4d32; position: relative; z-index: 1; }
-        .card:nth-child(2) .card-value { color: #3174b8; }
-        .card:nth-child(3) .card-value { color: #e57c23; }
+        .main-content { 
+            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; 
+            background-color: #f5f3eb;
+            background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M29.293 42.414c-.958-1.536-1.503-3.21-1.636-4.945.894 1.25 1.956 2.378 3.167 3.36 1.488 1.22 3.162 2.213 4.962 2.946-.66-.99-1.206-2.062-1.62-3.19-.887-2.42-1.24-5.06-1.026-7.7.272-3.327 1.282-6.52 2.942-9.405 1.554-2.7 3.65-5.093 6.13-7.006 1.543-1.19 3.23-2.186 5.01-2.96 1.96-.853 4.04-1.42 6.18-1.68 1.25-.152 2.52-.206 3.79-.16.27.01.53.03.8.06-1.2.04-2.4.15-3.58.33-2.28.35-4.52.98-6.64 1.86-1.92.8-3.73 1.86-5.38 3.14-2.67 2.08-4.94 4.68-6.62 7.6-1.8 3.12-2.9 6.57-3.2 10.16-.23 2.85.15 5.7 1.1 8.35.45 1.24 1.05 2.42 1.78 3.5.15.22.3.44.47.66z' fill='%231b4d32' fill-opacity='0.04' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+        
+        .summary-cards { display: flex; gap: 15px; flex-shrink: 0; }
+        
+        /* 🟢 กล่องตัวเลข (สไตล์เส้นขอบหนา พื้นหลังสีอ่อน และจัดชิดซ้าย) */
+        .card { flex: 1; padding: 20px 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); position: relative; overflow: hidden; background-color: #f2f7f4; border-left: 8px solid #1b4d32; text-align: left; }
+        .card:nth-child(2) { background-color: #eff5fb; border-left-color: #3174b8; }
+        .card:nth-child(3) { background-color: #fcf4ee; border-left-color: #e57c23; }
+        .card-title { font-size: 15px; color: #555; margin-bottom: 5px; position: relative; z-index: 1; font-weight: 600; }
+        .card-value { font-size: 32px; font-weight: bold; color: #1b4d32; position: relative; z-index: 1; }
+        .card:nth-child(2) .card-value { color: #3174b8; }
+        .card:nth-child(3) .card-value { color: #e57c23; }
 
-        /* ปรับ opacity: 1 ให้การ์ตูนกล่องตัวเลขเข้มชัดเจน */
-        .card::after { position: absolute; bottom: -10px; right: 5px; font-size: 65px; opacity: 1; z-index: 0; }
-        .card:nth-child(1)::after { content: '🧑‍🌾'; } 
-        .card:nth-child(2)::after { content: '🚜'; } 
-        .card:nth-child(3)::after { content: '🌻'; } 
+        /* ปรับ opacity: 1 ให้การ์ตูนกล่องตัวเลขเข้มชัดเจน */
+        .card::after { position: absolute; bottom: -10px; right: 5px; font-size: 65px; opacity: 1; z-index: 0; }
+        .card:nth-child(1)::after { content: '🧑‍🌾'; } 
+        .card:nth-child(2)::after { content: '🚜'; } 
+        .card:nth-child(3)::after { content: '🌻'; } 
 
-        /* กล่องกราฟ + การ์ตูนมุมขวาบนแบบสีเข้ม (opacity: 1) เปลี่ยนพื้นหลังให้เหมือน Zero Waste */
-        .content-box { background: linear-gradient(180deg, #ffffff 0%, #f1f8e9 100%); border-radius: 15px; padding: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); border: 1px solid rgba(255,255,255,0.8); display: flex; flex-direction: column; position: relative; overflow: hidden; }
-        .content-header { font-size: 16px; font-weight: bold; color: #1b4d32; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px dashed rgba(38, 89, 50, 0.2); position: relative; z-index: 1; }
-        
-        .map-box, .pie-box, .chart-box { position: relative; }
-        .pie-box::before { content: '🏡'; position: absolute; top: 10px; right: 15px; font-size: 35px; opacity: 1; z-index: 0; }
-        .chart-box:nth-child(1)::before { content: '🐛'; position: absolute; top: 10px; right: 15px; font-size: 35px; opacity: 1; z-index: 0; }
-        .chart-box:nth-child(2)::before { content: '📚'; position: absolute; top: 10px; right: 15px; font-size: 35px; opacity: 1; z-index: 0; }
-        .chart-box:nth-child(3)::before { content: '🌱'; position: absolute; top: 10px; right: 15px; font-size: 35px; opacity: 1; z-index: 0; }
+        /* กล่องกราฟ + การ์ตูนมุมขวาบนแบบสีเข้ม (opacity: 1) เปลี่ยนพื้นหลังให้เหมือน Zero Waste */
+        .content-box { background: linear-gradient(180deg, #ffffff 0%, #f1f8e9 100%); border-radius: 15px; padding: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); border: 1px solid rgba(255,255,255,0.8); display: flex; flex-direction: column; position: relative; overflow: hidden; }
+        .content-header { font-size: 16px; font-weight: bold; color: #1b4d32; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px dashed rgba(38, 89, 50, 0.2); position: relative; z-index: 1; }
+        
+        .map-box, .pie-box, .chart-box { position: relative; }
+        .pie-box::before { content: '🏡'; position: absolute; top: 10px; right: 15px; font-size: 35px; opacity: 1; z-index: 0; }
+        .chart-box:nth-child(1)::before { content: '🐛'; position: absolute; top: 10px; right: 15px; font-size: 35px; opacity: 1; z-index: 0; }
+        .chart-box:nth-child(2)::before { content: '📚'; position: absolute; top: 10px; right: 15px; font-size: 35px; opacity: 1; z-index: 0; }
+        .chart-box:nth-child(3)::before { content: '🌱'; position: absolute; top: 10px; right: 15px; font-size: 35px; opacity: 1; z-index: 0; }
 
-        .map-row { display: flex; gap: 20px; flex-shrink: 0; }
-        .map-box { flex: 2; height: 420px; } 
-        .pie-box { flex: 1; height: 420px; } 
-        #map { width: 100%; height: 100%; border-radius: 8px; z-index: 1; border: 2px solid #e0e0e0; background: white; }
-        
-        .chart-row { display: flex; gap: 20px; flex-shrink: 0; }
-        .chart-box { flex: 1; height: 350px; min-width: 0; } 
+        .map-row { display: flex; gap: 20px; flex-shrink: 0; }
+        .map-box { flex: 2; height: 420px; } 
+        .pie-box { flex: 1; height: 420px; } 
+        #map { width: 100%; height: 100%; border-radius: 8px; z-index: 1; border: 2px solid #e0e0e0; background: white; }
+        
+        .chart-row { display: flex; gap: 20px; flex-shrink: 0; }
+        .chart-box { flex: 1; height: 350px; min-width: 0; } 
 
-        .table-container { overflow: auto; max-height: 500px; width: 100%; border: 1px solid #ddd; border-radius: 8px; position: relative; z-index: 1; background: rgba(255,255,255,0.7); }
-        .table-container::-webkit-scrollbar { width: 12px; height: 12px; }
-        .table-container::-webkit-scrollbar-track { background: #f1f1f1; }
-        .table-container::-webkit-scrollbar-thumb { background: #a8a8a8; border-radius: 6px; border: 2px solid #f1f1f1; }
-        .table-container::-webkit-scrollbar-thumb:hover { background: #888; }
-        
-        table { width: 100%; border-collapse: collapse; white-space: nowrap; position: relative; z-index: 1; }
-        th, td { border: 1px solid #eee; padding: 12px 10px; text-align: left; font-size: 14px; }
-        th { background-color: #4CAF50; color: white; position: sticky; top: 0; z-index: 10; font-weight: 600; min-width: 120px; } 
-        tr:nth-child(even) { background-color: #fdfdfd; }
-        tr:hover { background-color: #f1f8e9; } 
-        
-        /* จัดกึ่งกลางกราฟวงกลม: ลด Padding ด้านบน(0px) เพิ่มด้านล่าง(30px) ให้ขยับขึ้นตรงกลาง */
-        .pie-chart-container { position: relative; height: 100%; width: 100%; flex: 1; padding: 0px 20px 30px 20px; z-index: 1; }
-        .chart-container { position: relative; height: 100%; width: 100%; flex: 1; z-index: 1; }
+        .table-container { overflow: auto; max-height: 500px; width: 100%; border: 1px solid #ddd; border-radius: 8px; position: relative; z-index: 1; background: rgba(255,255,255,0.7); }
+        .table-container::-webkit-scrollbar { width: 12px; height: 12px; }
+        .table-container::-webkit-scrollbar-track { background: #f1f1f1; }
+        .table-container::-webkit-scrollbar-thumb { background: #a8a8a8; border-radius: 6px; border: 2px solid #f1f1f1; }
+        .table-container::-webkit-scrollbar-thumb:hover { background: #888; }
+        
+        table { width: 100%; border-collapse: collapse; white-space: nowrap; position: relative; z-index: 1; }
+        th, td { border: 1px solid #eee; padding: 12px 10px; text-align: left; font-size: 14px; }
+        th { background-color: #4CAF50; color: white; position: sticky; top: 0; z-index: 10; font-weight: 600; min-width: 120px; } 
+        tr:nth-child(even) { background-color: #fdfdfd; }
+        tr:hover { background-color: #f1f8e9; } 
+        
+        /* จัดกึ่งกลางกราฟวงกลม: ลด Padding ด้านบน(0px) เพิ่มด้านล่าง(30px) ให้ขยับขึ้นตรงกลาง */
+        .pie-chart-container { position: relative; height: 100%; width: 100%; flex: 1; padding: 0px 20px 30px 20px; z-index: 1; }
+        .chart-container { position: relative; height: 100%; width: 100%; flex: 1; z-index: 1; }
 
-        /* 🟢 ปุ่มดาวน์โหลด Excel */
-        .btn-excel { background-color: #2e7d32; color: white; }
-        .btn-excel:hover { background-color: #1b4d32; transform: scale(1.02); }
-    </style>
+        /* 🟢 ปุ่มดาวน์โหลด Excel */
+        .btn-excel { background-color: #2e7d32; color: white; }
+        .btn-excel:hover { background-color: #1b4d32; transform: scale(1.02); }
+    </style>
 </head>
 <body>
 
-    <aside class="sidebar">
-        <div class="logo-area">
-            <img src="https://i.postimg.cc/d1HmqvBj/S-199172133-removebg-preview.png" alt="โลโก้หมอดินในโรงเรียน" style="width: 90px; height: 90px; background: white; border-radius: 50%; object-fit: contain; padding: 5px; margin: 0 auto; box-shadow: 0 4px 8px rgba(0,0,0,0.2); display: block;">
-            <h2>ระบบฐานข้อมูล<br>โครงการหมอดินในโรงเรียน<br><span style="font-size: 14px; font-weight: normal;">(Junior Soil Doctor)</span></h2>
-        </div>
+    <aside class="sidebar">
+        <div class="logo-area">
+            <img src="https://i.postimg.cc/d1HmqvBj/S-199172133-removebg-preview.png" alt="โลโก้หมอดินในโรงเรียน" style="width: 90px; height: 90px; background: white; border-radius: 50%; object-fit: contain; padding: 5px; margin: 0 auto; box-shadow: 0 4px 8px rgba(0,0,0,0.2); display: block;">
+            <h2>ระบบฐานข้อมูล<br>โครงการหมอดินในโรงเรียน<br><span style="font-size: 14px; font-weight: normal;">(Junior Soil Doctor)</span></h2>
+        </div>
 
-        <div class="filter-box">
-            <div class="filter-group">
-                <label>🔍 ค้นหาชื่อ-สกุล:</label>
-                <input type="text" id="searchInput" placeholder="พิมพ์ชื่อที่ต้องการค้นหา...">
-            </div>
-            <div class="filter-group">
-                <label>🏷️ รุ่นที่:</label>
-                <select id="genFilter">
-                    <option value="">-- ทุกรุ่น --</option>
-                    <option value="รุ่นที่ 1">รุ่นที่ 1</option>
-                    <option value="รุ่นที่ 2">รุ่นที่ 2</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>📍 สพด.:</label>
-                <select id="spdFilter">
-                    <option value="">-- ทุก สพด. --</option>
-                    <option value="ตาก">ตาก</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>🎓 ระดับการศึกษา:</label>
-                <!-- 🟢 เรียงลำดับ ปวช. 1 -> ปวช. 2 -> ปวส. 1 -->
-                <select id="eduFilter">
-                    <option value="">-- ทุกระดับ --</option>
-                    <option value="ปวช. 1">ปวช. 1</option>
-                    <option value="ปวช. 2">ปวช. 2</option>
-                    <option value="ปวส. 1">ปวส. 1</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>🏫 สถานศึกษา:</label>
-                <select id="schoolFilter">
-                    <option value="">-- ทุกสถานศึกษา --</option>
-                    <option value="วิทยาลัยเกษตรและเทคโนโลยีตาก">วิทยาลัยเกษตรและเทคโนโลยีตาก</option>
-                </select>
-            </div>
-            <!-- ปุ่มกด -->
-            <button class="btn btn-clear" id="btnReset">↻ ล้างตัวกรอง</button>
-            <button class="btn btn-excel" id="btnDownloadExcel">⬇️ ดาวน์โหลด Excel</button>
-        </div>
-        
-        <div style="text-align: center; margin-top: auto; opacity: 0.8;">
-            <span style="font-size: 50px;">🌱✨</span>
-        </div>
-    </aside>
+        <div class="filter-box">
+            <div class="filter-group">
+                <label>🔍 ค้นหาชื่อ-สกุล:</label>
+                <input type="text" id="searchInput" placeholder="พิมพ์ชื่อที่ต้องการค้นหา...">
+            </div>
+            <div class="filter-group">
+                <label>🏷️ รุ่นที่:</label>
+                <select id="genFilter">
+                    <option value="">-- ทุกรุ่น --</option>
+                    <option value="รุ่นที่ 1">รุ่นที่ 1</option>
+                    <option value="รุ่นที่ 2">รุ่นที่ 2</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>📍 สพด.:</label>
+                <select id="spdFilter">
+                    <option value="">-- ทุก สพด. --</option>
+                    <option value="ตาก">ตาก</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>🎓 ระดับการศึกษา:</label>
+                <!-- 🟢 เรียงลำดับ ปวช. 1 -> ปวช. 2 -> ปวส. 1 -->
+                <select id="eduFilter">
+                    <option value="">-- ทุกระดับ --</option>
+                    <option value="ปวช. 1">ปวช. 1</option>
+                    <option value="ปวช. 2">ปวช. 2</option>
+                    <option value="ปวส. 1">ปวส. 1</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>🏫 สถานศึกษา:</label>
+                <select id="schoolFilter">
+                    <option value="">-- ทุกสถานศึกษา --</option>
+                    <option value="วิทยาลัยเกษตรและเทคโนโลยีตาก">วิทยาลัยเกษตรและเทคโนโลยีตาก</option>
+                </select>
+            </div>
+            <!-- ปุ่มกด -->
+            <button class="btn btn-clear" id="btnReset">↻ ล้างตัวกรอง</button>
+            <button class="btn btn-excel" id="btnDownloadExcel">⬇️ ดาวน์โหลด Excel</button>
+        </div>
+        
+        <div style="text-align: center; margin-top: auto; opacity: 0.8;">
+            <span style="font-size: 50px;">🌱✨</span>
+        </div>
+    </aside>
 
-    <main class="main-content">
-        <!-- แถว 1: สถิติ -->
-        <div class="summary-cards">
-            <div class="card">
-                <div class="card-title">จำนวนหมอดินทั้งหมด</div>
-                <div class="card-value" id="totalFarmers">0 <span style="font-size:14px; color:#666; font-weight:normal;">ราย</span></div>
-            </div>
-            <div class="card">
-                <div class="card-title">จำนวนจังหวัด</div>
-                <div class="card-value">1 <span style="font-size:14px; color:#666; font-weight:normal;">จังหวัด (ตาก)</span></div>
-            </div>
-            <div class="card">
-                <div class="card-title">อัปเดตล่าสุด</div>
-                <div class="card-value" style="font-size: 18px;" id="lastUpdate">วันนี้</div>
-            </div>
-        </div>
+    <main class="main-content">
+        <!-- แถว 1: สถิติ -->
+        <div class="summary-cards">
+            <div class="card">
+                <div class="card-title">จำนวนหมอดินทั้งหมด</div>
+                <div class="card-value" id="totalFarmers">0 <span style="font-size:14px; color:#666; font-weight:normal;">ราย</span></div>
+            </div>
+            <div class="card">
+                <div class="card-title">จำนวนจังหวัด</div>
+                <div class="card-value">1 <span style="font-size:14px; color:#666; font-weight:normal;">จังหวัด (ตาก)</span></div>
+            </div>
+            <div class="card">
+                <div class="card-title">อัปเดตล่าสุด</div>
+                <div class="card-value" style="font-size: 18px;" id="lastUpdate">วันนี้</div>
+            </div>
+        </div>
 
-        <!-- แถว 2: แผนที่ + กราฟวงกลมพื้นที่เกษตร -->
-        <div class="map-row">
-            <div class="content-box map-box">
-                <div class="content-header">🗺️ แผนที่พื้นที่ปฏิบัติงาน</div>
-                <div id="map"></div>
-            </div>
-            <div class="content-box pie-box">
-                <div class="content-header">🥧 ขนาดพื้นที่ทำเกษตรของครอบครัว</div>
-                <div class="pie-chart-container">
-                    <canvas id="areaChart"></canvas>
-                </div>
-            </div>
-        </div>
+        <!-- แถว 2: แผนที่ + กราฟวงกลมพื้นที่เกษตร -->
+        <div class="map-row">
+            <div class="content-box map-box">
+                <div class="content-header">🗺️ แผนที่พื้นที่ปฏิบัติงาน</div>
+                <div id="map"></div>
+            </div>
+            <div class="content-box pie-box">
+                <div class="content-header">🥧 ขนาดพื้นที่ทำเกษตรของครอบครัว</div>
+                <div class="pie-chart-container">
+                    <canvas id="areaChart"></canvas>
+                </div>
+            </div>
+        </div>
 
-        <!-- แถว 3: กราฟ 3 อัน -->
-        <div class="chart-row">
-            <div class="content-box chart-box">
-                <div class="content-header">📊 จำนวนหมอดินแยกตามอำเภอ</div>
-                <div class="chart-container">
-                    <canvas id="districtChart"></canvas>
-                </div>
-            </div>
-            <div class="content-box chart-box">
-                <div class="content-header">🍩 สัดส่วนระดับการศึกษา</div>
-                <div class="pie-chart-container">
-                    <canvas id="eduChart"></canvas>
-                </div>
-            </div>
-            <div class="content-box chart-box">
-                <div class="content-header">🌾 ชนิดพืชที่ปลูก (5 อันดับแรก)</div>
-                <div class="chart-container">
-                    <canvas id="cropChart"></canvas>
-                </div>
-            </div>
-        </div>
+        <!-- แถว 3: กราฟ 3 อัน -->
+        <div class="chart-row">
+            <div class="content-box chart-box">
+                <div class="content-header">📊 จำนวนหมอดินแยกตามอำเภอ</div>
+                <div class="chart-container">
+                    <canvas id="districtChart"></canvas>
+                </div>
+            </div>
+            <div class="content-box chart-box">
+                <div class="content-header">🍩 สัดส่วนระดับการศึกษา</div>
+                <div class="pie-chart-container">
+                    <canvas id="eduChart"></canvas>
+                </div>
+            </div>
+            <div class="content-box chart-box">
+                <div class="content-header">🌾 ชนิดพืชที่ปลูก (5 อันดับแรก)</div>
+                <div class="chart-container">
+                    <canvas id="cropChart"></canvas>
+                </div>
+            </div>
+        </div>
 
-        <!-- แถว 4: ตารางข้อมูล -->
-        <div class="content-box" style="flex-shrink: 0; margin-bottom: 30px;">
-            <div class="content-header">📍 ข้อมูลหมอดินอาสาในโรงเรียน</div>
-            <div class="table-container">
-                <div id="loading" style="text-align:center; padding:20px;">⏳ กำลังโหลดข้อมูล...</div>
-                <table id="dataTable" style="display: none;">
-                    <thead>
-                        <tr id="tableHeader"></tr>
-                    </thead>
-                    <tbody id="tableBody"></tbody>
-                </table>
-            </div>
-        </div>
-    </main>
+        <!-- แถว 4: ตารางข้อมูล -->
+        <div class="content-box" style="flex-shrink: 0; margin-bottom: 30px;">
+            <div class="content-header">📍 ข้อมูลหมอดินอาสาในโรงเรียน</div>
+            <div class="table-container">
+                <div id="loading" style="text-align:center; padding:20px;">⏳ กำลังโหลดข้อมูล...</div>
+                <table id="dataTable" style="display: none;">
+                    <thead>
+                        <tr id="tableHeader"></tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
 
-    <!-- JS ของ Leaflet -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-    <!-- เรียกใช้ Library สำหรับสร้างไฟล์ Excel -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- JS ของ Leaflet -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+    <!-- เรียกใช้ Library สำหรับสร้างไฟล์ Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-    <script>
-        // 🟢 กำหนดชุดสีแยกสำหรับแต่ละกราฟเพื่อไม่ให้สีซ้ำกัน
-        const colorArea = ['#ff7691', '#4baaf0', '#ffdb73', '#62ba65', '#b388ff']; // กราฟพื้นที่ทำเกษตร (สีสว่าง)
-        const colorDistrict = ['#ef5350', '#29b6f6', '#ffee58', '#66bb6a', '#ab47bc', '#ffa726', '#ec407a', '#26c6da', '#9ccc65', '#8d6e63']; // กราฟอำเภอ (สีสด)
-        const colorEdu = ['#f06292', '#4fc3f7', '#ffd54f', '#4db6ac', '#7986cb']; // กราฟระดับการศึกษา (สีพาสเทล)
-        const colorCrop = ['#d32f2f', '#1976d2', '#fbc02d', '#388e3c', '#7b1fa2']; // กราฟชนิดพืช (สีเข้ม)
+    <script>
+        // 🟢 กำหนดชุดสีแยกสำหรับแต่ละกราฟเพื่อไม่ให้สีซ้ำกัน
+        const colorArea = ['#ff7691', '#4baaf0', '#ffdb73', '#62ba65', '#b388ff']; // กราฟพื้นที่ทำเกษตร (สีสว่าง)
+        const colorDistrict = ['#ef5350', '#29b6f6', '#ffee58', '#66bb6a', '#ab47bc', '#ffa726', '#ec407a', '#26c6da', '#9ccc65', '#8d6e63']; // กราฟอำเภอ (สีสด)
+        const colorEdu = ['#f06292', '#4fc3f7', '#ffd54f', '#4db6ac', '#7986cb']; // กราฟระดับการศึกษา (สีพาสเทล)
+        const colorCrop = ['#d32f2f', '#1976d2', '#fbc02d', '#388e3c', '#7b1fa2']; // กราฟชนิดพืช (สีเข้ม)
 
-        Chart.defaults.font.family = "'Sarabun', sans-serif";
-        Chart.defaults.color = '#333';
+        Chart.defaults.font.family = "'Sarabun', sans-serif";
+        Chart.defaults.color = '#333';
 
-        let chartAreaInst, chartDistInst, chartEduInst, chartCropInst;
+        let chartAreaInst, chartDistInst, chartEduInst, chartCropInst;
 
-        const map = L.map('map').setView([16.8833, 98.8833], 8);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '© OpenStreetMap' }).addTo(map);
-        const markersLayer = L.markerClusterGroup({ maxClusterRadius: 30, spiderfyOnMaxZoom: true });
-        map.addLayer(markersLayer);
+        const map = L.map('map').setView([16.8833, 98.8833], 8);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '© OpenStreetMap' }).addTo(map);
+        const markersLayer = L.markerClusterGroup({ maxClusterRadius: 30, spiderfyOnMaxZoom: true });
+        map.addLayer(markersLayer);
 
-        const takDistrictsCoords = {
-            'เมือง': [16.8833, 99.1167], 'เมืองตาก': [16.8833, 99.1167], 'บ้านตาก': [17.0333, 99.0667],
-            'สามเงา': [17.2333, 98.9667], 'แม่ระมาด': [16.9833, 98.5167], 'ท่าสองยาง': [17.2167, 98.2167],
-            'แม่สอด': [16.7167, 98.5667], 'พบพระ': [16.3667, 98.6833], 'อุ้มผาง': [16.0167, 98.8667], 'วังเจ้า': [16.6667, 99.1667]
-        };
+        const takDistrictsCoords = {
+            'เมือง': [16.8833, 99.1167], 'เมืองตาก': [16.8833, 99.1167], 'บ้านตาก': [17.0333, 99.0667],
+            'สามเงา': [17.2333, 98.9667], 'แม่ระมาด': [16.9833, 98.5167], 'ท่าสองยาง': [17.2167, 98.2167],
+            'แม่สอด': [16.7167, 98.5667], 'พบพระ': [16.3667, 98.6833], 'อุ้มผาง': [16.0167, 98.8667], 'วังเจ้า': [16.6667, 99.1667]
+        };
 
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxLLU6rmxz4tWU1AI-8N3tY-qMWx-3Iox8HSAQh8GRgQ0vn2jX8VyegTXc3BnJWu8cU/exec';
-        
-        let allData = []; 
-        let currentDisplayData = []; // ตัวแปรไว้จำว่าตอนนี้มีข้อมูลอะไรแสดงอยู่ (สำหรับโหลดลง Excel)
-        let displayHeaders = []; 
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxLLU6rmxz4tWU1AI-8N3tY-qMWx-3Iox8HSAQh8GRgQ0vn2jX8VyegTXc3BnJWu8cU/exec';
+        
+        let allData = []; 
+        let currentDisplayData = []; // ตัวแปรไว้จำว่าตอนนี้มีข้อมูลอะไรแสดงอยู่ (สำหรับโหลดลง Excel)
+        let displayHeaders = []; 
 
-        function shouldHide(header) {
-            const h = header.trim();
-            if (h === 'บ้านเลขที่' || h === 'หมู่') return true;
-            if (h === 'เบอร์โทร' || h === 'เบอร์โทรศัพท์' || h.includes('เบอร์')) return true;
-            if (h.includes('พื้นฐานความรู้หรือประสบการณ์')) return true;
-            if (h.includes('เคยรู้จัก')) return true;
-            if (h.includes('กิจกรรมที่เคยเข้าร่วม')) return true;
-            if (h.includes('เคยเข้าร่วมกิจกรรมด้านการเกษตรของโรงเรียนมาก่อนหรือไม่')) return true;
-            // ซ่อนคอลัมน์ตามที่ต้องการ (แต่ยังใช้กรองข้อมูลได้)
-            if (h === 'รุ่นของหมอดิน' || h === 'สพด.ที่รับผิดชอบ' || h === 'โรงเรียน/สถานศึกษา') return true;
-            return false;
-        }
+        function shouldHide(header) {
+            const h = header.trim();
+            if (h === 'บ้านเลขที่' || h === 'หมู่') return true;
+            if (h === 'เบอร์โทร' || h === 'เบอร์โทรศัพท์' || h.includes('เบอร์')) return true;
+            if (h.includes('พื้นฐานความรู้หรือประสบการณ์')) return true;
+            if (h.includes('เคยรู้จัก')) return true;
+            if (h.includes('กิจกรรมที่เคยเข้าร่วม')) return true;
+            if (h.includes('เคยเข้าร่วมกิจกรรมด้านการเกษตรของโรงเรียนมาก่อนหรือไม่')) return true;
+            // ซ่อนคอลัมน์ตามที่ต้องการ (แต่ยังใช้กรองข้อมูลได้)
+            if (h === 'รุ่นของหมอดิน' || h === 'สพด.ที่รับผิดชอบ' || h === 'โรงเรียน/สถานศึกษา') return true;
+            return false;
+        }
 
-        fetch(API_URL)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('dataTable').style.display = 'table';
+        fetch(API_URL)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('dataTable').style.display = 'table';
 
-                if(data.length > 0) {
-                    const originalHeaders = Object.keys(data[0]);
-                    let tempHeaders = originalHeaders.filter(h => !shouldHide(h));
+                if(data.length > 0) {
+                    const originalHeaders = Object.keys(data[0]);
+                    let tempHeaders = originalHeaders.filter(h => !shouldHide(h));
 
-                    displayHeaders = [];
-                    let addedArea = false;
-                    tempHeaders.forEach(h => {
-                        if (h.includes('พื้นที่การทำเกษตร')) {
-                            if (!addedArea) { displayHeaders.push('พื้นที่การทำเกษตร'); addedArea = true; }
-                        } else {
-                            displayHeaders.push(h);
-                        }
-                    });
+                    displayHeaders = [];
+                    let addedArea = false;
+                    tempHeaders.forEach(h => {
+                        if (h.includes('พื้นที่การทำเกษตร')) {
+                            if (!addedArea) { displayHeaders.push('พื้นที่การทำเกษตร'); addedArea = true; }
+                        } else {
+                            displayHeaders.push(h);
+                        }
+                    });
 
-                    const trHead = document.getElementById('tableHeader');
-                    displayHeaders.forEach(headerText => {
-                        const th = document.createElement('th');
-                        th.textContent = headerText;
-                        trHead.appendChild(th);
-                    });
+                    const trHead = document.getElementById('tableHeader');
+                    displayHeaders.forEach(headerText => {
+                        const th = document.createElement('th');
+                        th.textContent = headerText;
+                        trHead.appendChild(th);
+                    });
 
-                    allData = data.filter(row => !originalHeaders.every(header => !row[header] || row[header].toString().trim() === ''));
-                    
-                    allData.forEach(row => {
-                        let areaAnswers = []; 
-                        originalHeaders.forEach(key => {
-                            if (key.includes('พื้นที่การทำเกษตร (')) {
-                                let val = (row[key] || '').toString().trim().toLowerCase();
-                                if (val === 'x' || val === '✓') {
-                                    let match = key.match(/\((.*?)\)/);
-                                    if (match && match[1]) areaAnswers.push(match[1]);
-                                }
-                            }
-                        });
-                        row['พื้นที่การทำเกษตร'] = areaAnswers.length > 0 ? areaAnswers.join(', ') : '-';
-                    });
+                    allData = data.filter(row => !originalHeaders.every(header => !row[header] || row[header].toString().trim() === ''));
+                    
+                    allData.forEach(row => {
+                        let areaAnswers = []; 
+                        originalHeaders.forEach(key => {
+                            if (key.includes('พื้นที่การทำเกษตร (')) {
+                                let val = (row[key] || '').toString().trim().toLowerCase();
+                                if (val === 'x' || val === '✓') {
+                                    let match = key.match(/\((.*?)\)/);
+                                    if (match && match[1]) areaAnswers.push(match[1]);
+                                }
+                            }
+                        });
+                        row['พื้นที่การทำเกษตร'] = areaAnswers.length > 0 ? areaAnswers.join(', ') : '-';
+                    });
 
-                    currentDisplayData = [...allData];
-                    updateDashboard(currentDisplayData);
-                    
-                    const today = new Date();
-                    document.getElementById('lastUpdate').textContent = today.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
-                }
-            })
-            .catch(error => { console.error('Error:', error); });
+                    currentDisplayData = [...allData];
+                    updateDashboard(currentDisplayData);
+                    
+                    const today = new Date();
+                    document.getElementById('lastUpdate').textContent = today.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+                }
+            })
+            .catch(error => { console.error('Error:', error); });
 
-        function updateDashboard(dataArray) {
-            renderTable(dataArray);
-            renderMapMarkers(dataArray);
-            renderCharts(dataArray);
-        }
+        function updateDashboard(dataArray) {
+            renderTable(dataArray);
+            renderMapMarkers(dataArray);
+            renderCharts(dataArray);
+        }
 
-        function renderTable(dataArray) {
-            const tBody = document.getElementById('tableBody');
-            tBody.innerHTML = ''; 
-            dataArray.forEach(row => {
-                const tr = document.createElement('tr');
-                displayHeaders.forEach(headerText => {
-                    const td = document.createElement('td');
-                    td.textContent = row[headerText] || "-";
-                    tr.appendChild(td);
-                });
-                tBody.appendChild(tr);
-            });
-            document.getElementById('totalFarmers').innerHTML = `${dataArray.length} <span style="font-size:14px; color:#666; font-weight:normal;">ราย</span>`;
-        }
+        function renderTable(dataArray) {
+            const tBody = document.getElementById('tableBody');
+            tBody.innerHTML = ''; 
+            dataArray.forEach(row => {
+                const tr = document.createElement('tr');
+                displayHeaders.forEach(headerText => {
+                    const td = document.createElement('td');
+                    td.textContent = row[headerText] || "-";
+                    tr.appendChild(td);
+                });
+                tBody.appendChild(tr);
+            });
+            document.getElementById('totalFarmers').innerHTML = `${dataArray.length} <span style="font-size:14px; color:#666; font-weight:normal;">ราย</span>`;
+        }
 
-        function renderMapMarkers(dataArray) {
-            markersLayer.clearLayers();
-            dataArray.forEach((row, index) => {
-                let districtName = (row['อำเภอ'] || '').replace(/^อ\./, '').replace(/^อำเภอ/, '').trim();
-                let baseCoord = takDistrictsCoords[districtName] || [16.8833, 98.8833];
-                let lat = baseCoord[0] + ((Math.random() - 0.5) * 0.005);
-                let lng = baseCoord[1] + ((Math.random() - 0.5) * 0.005);
-                const name = row['ชื่อ-สกุล'] || 'ไม่ระบุชื่อ';
-                const tambon = row['ตำบล'] || '-';
-                const school = row['โรงเรียน/สถานศึกษา'] || '-';
-                let popupHTML = `<div style="text-align:center;"><b>👤 ${name}</b><br>🏫 ${school}<br>📍 ต.${tambon} อ.${districtName}</div>`;
-                let marker = L.marker([lat, lng]).bindPopup(popupHTML);
-                markersLayer.addLayer(marker); 
-            });
-        }
+        function renderMapMarkers(dataArray) {
+            markersLayer.clearLayers();
+            dataArray.forEach((row, index) => {
+                let districtName = (row['อำเภอ'] || '').replace(/^อ\./, '').replace(/^อำเภอ/, '').trim();
+                let baseCoord = takDistrictsCoords[districtName] || [16.8833, 98.8833];
+                let lat = baseCoord[0] + ((Math.random() - 0.5) * 0.005);
+                let lng = baseCoord[1] + ((Math.random() - 0.5) * 0.005);
+                const name = row['ชื่อ-สกุล'] || 'ไม่ระบุชื่อ';
+                const tambon = row['ตำบล'] || '-';
+                const school = row['โรงเรียน/สถานศึกษา'] || '-';
+                let popupHTML = `<div style="text-align:center;"><b>👤 ${name}</b><br>🏫 ${school}<br>📍 ต.${tambon} อ.${districtName}</div>`;
+                let marker = L.marker([lat, lng]).bindPopup(popupHTML);
+                markersLayer.addLayer(marker); 
+            });
+        }
 
-        function countData(dataArray, key) {
-            const counts = {};
-            dataArray.forEach(row => {
-                let val = (row[key] || 'ไม่ระบุ').toString().trim();
-                if(val === '-' || val === '') val = 'ไม่ระบุ';
-                counts[val] = (counts[val] || 0) + 1;
-            });
-            return counts;
-        }
+        function countData(dataArray, key) {
+            const counts = {};
+            dataArray.forEach(row => {
+                let val = (row[key] || 'ไม่ระบุ').toString().trim();
+                if(val === '-' || val === '') val = 'ไม่ระบุ';
+                counts[val] = (counts[val] || 0) + 1;
+            });
+            return counts;
+        }
 
-        function renderCharts(dataArray) {
-            const areaCounts = countData(dataArray, 'พื้นที่การทำเกษตร');
-            const distCounts = countData(dataArray, 'อำเภอ');
-            
-            // เรียงลำดับข้อมูลระดับการศึกษา ปวช. 1 -> ปวช. 2 -> ปวส. 1 ในกราฟด้วย
-            const eduCounts = countData(dataArray, 'ระดับการศึกษา');
-            const sortedEduLabels = Object.keys(eduCounts).sort((a, b) => {
-                let cleanA = a.replace(/\s+/g, '');
-                let cleanB = b.replace(/\s+/g, '');
-                const order = ['ปวช.1', 'ปวช.2', 'ปวส.1'];
-                let indexA = order.indexOf(cleanA);
-                let indexB = order.indexOf(cleanB);
-                if (indexA === -1) indexA = 99;
-                if (indexB === -1) indexB = 99;
-                return indexA - indexB;
-            });
-            const sortedEduData = sortedEduLabels.map(k => eduCounts[k]);
-            
-            const cropCounts = {};
-            dataArray.forEach(row => {
-                let val = (row['ชนิดพืชที่ปลูก'] || '').toString();
-                let crops = val.split(',').map(c => c.trim()).filter(c => c !== '' && c !== '-');
-                crops.forEach(c => { cropCounts[c] = (cropCounts[c] || 0) + 1; });
-            });
-            const sortedCrops = Object.keys(cropCounts).sort((a,b) => cropCounts[b] - cropCounts[a]).slice(0, 5);
-            const topCropValues = sortedCrops.map(k => cropCounts[k]);
+        function renderCharts(dataArray) {
+            const areaCounts = countData(dataArray, 'พื้นที่การทำเกษตร');
+            const distCounts = countData(dataArray, 'อำเภอ');
+            
+            // เรียงลำดับข้อมูลระดับการศึกษา ปวช. 1 -> ปวช. 2 -> ปวส. 1 ในกราฟด้วย
+            const eduCounts = countData(dataArray, 'ระดับการศึกษา');
+            const sortedEduLabels = Object.keys(eduCounts).sort((a, b) => {
+                let cleanA = a.replace(/\s+/g, '');
+                let cleanB = b.replace(/\s+/g, '');
+                const order = ['ปวช.1', 'ปวช.2', 'ปวส.1'];
+                let indexA = order.indexOf(cleanA);
+                let indexB = order.indexOf(cleanB);
+                if (indexA === -1) indexA = 99;
+                if (indexB === -1) indexB = 99;
+                return indexA - indexB;
+            });
+            const sortedEduData = sortedEduLabels.map(k => eduCounts[k]);
+            
+            const cropCounts = {};
+            dataArray.forEach(row => {
+                let val = (row['ชนิดพืชที่ปลูก'] || '').toString();
+                let crops = val.split(',').map(c => c.trim()).filter(c => c !== '' && c !== '-');
+                crops.forEach(c => { cropCounts[c] = (cropCounts[c] || 0) + 1; });
+            });
+            const sortedCrops = Object.keys(cropCounts).sort((a,b) => cropCounts[b] - cropCounts[a]).slice(0, 5);
+            const topCropValues = sortedCrops.map(k => cropCounts[k]);
 
-            if(chartAreaInst) chartAreaInst.destroy();
-            if(chartDistInst) chartDistInst.destroy();
-            if(chartEduInst) chartEduInst.destroy();
-            if(chartCropInst) chartCropInst.destroy();
+            if(chartAreaInst) chartAreaInst.destroy();
+            if(chartDistInst) chartDistInst.destroy();
+            if(chartEduInst) chartEduInst.destroy();
+            if(chartCropInst) chartCropInst.destroy();
 
-            chartAreaInst = new Chart(document.getElementById('areaChart'), {
-                type: 'pie',
-                data: {
-                    labels: Object.keys(areaCounts),
-                    datasets: [{ data: Object.values(areaCounts), backgroundColor: colorArea }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-            });
+            chartAreaInst = new Chart(document.getElementById('areaChart'), {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(areaCounts),
+                    datasets: [{ data: Object.values(areaCounts), backgroundColor: colorArea }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
 
-            chartDistInst = new Chart(document.getElementById('districtChart'), {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(distCounts),
-                    datasets: [{ label: 'จำนวนคน', data: Object.values(distCounts), backgroundColor: colorDistrict }]
-                },
-                options: { 
-                    responsive: true, maintainAspectRatio: false, 
-                    plugins: { legend: { display: false } }, 
-                    scales: { 
-                        x: { title: { display: true, text: 'อำเภอ', font: { weight: 'bold' } } },
-                        y: { beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: 'จำนวนหมอดิน (ราย)', font: { weight: 'bold' } } } 
-                    } 
-                }
-            });
+            chartDistInst = new Chart(document.getElementById('districtChart'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(distCounts),
+                    datasets: [{ label: 'จำนวนคน', data: Object.values(distCounts), backgroundColor: colorDistrict }]
+                },
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    plugins: { legend: { display: false } }, 
+                    scales: { 
+                        x: { title: { display: true, text: 'อำเภอ', font: { weight: 'bold' } } },
+                        y: { beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: 'จำนวนหมอดิน (ราย)', font: { weight: 'bold' } } } 
+                    } 
+                }
+            });
 
-            chartEduInst = new Chart(document.getElementById('eduChart'), {
-                type: 'doughnut',
-                data: {
-                    labels: sortedEduLabels,
-                    datasets: [{ data: sortedEduData, backgroundColor: colorEdu }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-            });
+            chartEduInst = new Chart(document.getElementById('eduChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: sortedEduLabels,
+                    datasets: [{ data: sortedEduData, backgroundColor: colorEdu }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
 
-            chartCropInst = new Chart(document.getElementById('cropChart'), {
-                type: 'bar',
-                data: {
-                    labels: sortedCrops.length > 0 ? sortedCrops : ['ไม่มีข้อมูล'],
-                    datasets: [{ label: 'จำนวน (รายการ)', data: topCropValues.length > 0 ? topCropValues : [0], backgroundColor: colorCrop }]
-                },
-                options: { 
-                    indexAxis: 'y', responsive: true, maintainAspectRatio: false, 
-                    plugins: { legend: { display: false } }, 
-                    scales: { 
-                        x: { beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: 'จำนวน (รายการ)', font: { weight: 'bold' } } },
-                        y: { title: { display: true, text: 'ชนิดพืช', font: { weight: 'bold' } } }
-                    } 
-                }
-            });
-        }
+            chartCropInst = new Chart(document.getElementById('cropChart'), {
+                type: 'bar',
+                data: {
+                    labels: sortedCrops.length > 0 ? sortedCrops : ['ไม่มีข้อมูล'],
+                    datasets: [{ label: 'จำนวน (รายการ)', data: topCropValues.length > 0 ? topCropValues : [0], backgroundColor: colorCrop }]
+                },
+                options: { 
+                    indexAxis: 'y', responsive: true, maintainAspectRatio: false, 
+                    plugins: { legend: { display: false } }, 
+                    scales: { 
+                        x: { beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: 'จำนวน (รายการ)', font: { weight: 'bold' } } },
+                        y: { title: { display: true, text: 'ชนิดพืช', font: { weight: 'bold' } } }
+                    } 
+                }
+            });
+        }
 
-        const searchInput = document.getElementById('searchInput');
-        const spdFilter = document.getElementById('spdFilter');
-        const eduFilter = document.getElementById('eduFilter');
-        const schoolFilter = document.getElementById('schoolFilter');
-        const genFilter = document.getElementById('genFilter');
-        const btnReset = document.getElementById('btnReset');
-        const btnDownloadExcel = document.getElementById('btnDownloadExcel');
+        const searchInput = document.getElementById('searchInput');
+        const spdFilter = document.getElementById('spdFilter');
+        const eduFilter = document.getElementById('eduFilter');
+        const schoolFilter = document.getElementById('schoolFilter');
+        const genFilter = document.getElementById('genFilter');
+        const btnReset = document.getElementById('btnReset');
+        const btnDownloadExcel = document.getElementById('btnDownloadExcel');
 
-        function filterData() {
-            const searchText = searchInput.value.toLowerCase().replace(/\s+/g, '');
-            const spdValue = spdFilter.value.toLowerCase().replace(/\s+/g, '');
-            const eduValue = eduFilter.value.toLowerCase().replace(/\s+/g, '');
-            const schoolValue = schoolFilter.value.toLowerCase().replace(/\s+/g, '');
-            const genValue = genFilter.value.toLowerCase().replace(/\s+/g, '');
-            
-            if(allData.length === 0) return; 
+        function filterData() {
+            const searchText = searchInput.value.toLowerCase().replace(/\s+/g, '');
+            const spdValue = spdFilter.value.toLowerCase().replace(/\s+/g, '');
+            const eduValue = eduFilter.value.toLowerCase().replace(/\s+/g, '');
+            const schoolValue = schoolFilter.value.toLowerCase().replace(/\s+/g, '');
+            const genValue = genFilter.value.toLowerCase().replace(/\s+/g, '');
+            
+            if(allData.length === 0) return; 
 
-            const filtered = allData.filter(row => {
-                const rowName = (row['ชื่อ-สกุล'] || '').toString().toLowerCase().replace(/\s+/g, '');
-                const rowSpd = ((row['สพด.ที่รับผิดชอบ'] || '') + (row['จังหวัด'] || '')).toString().toLowerCase().replace(/\s+/g, ''); 
-                const rowEdu = (row['ระดับการศึกษา'] || '').toString().toLowerCase().replace(/\s+/g, '');
-                const rowSchool = (row['โรงเรียน/สถานศึกษา'] || '').toString().toLowerCase().replace(/\s+/g, '');
-                const rowGen = (row['รุ่นของหมอดิน'] || '').toString().toLowerCase().replace(/\s+/g, '');
+            const filtered = allData.filter(row => {
+                const rowName = (row['ชื่อ-สกุล'] || '').toString().toLowerCase().replace(/\s+/g, '');
+                const rowSpd = ((row['สพด.ที่รับผิดชอบ'] || '') + (row['จังหวัด'] || '')).toString().toLowerCase().replace(/\s+/g, ''); 
+                const rowEdu = (row['ระดับการศึกษา'] || '').toString().toLowerCase().replace(/\s+/g, '');
+                const rowSchool = (row['โรงเรียน/สถานศึกษา'] || '').toString().toLowerCase().replace(/\s+/g, '');
+                const rowGen = (row['รุ่นของหมอดิน'] || '').toString().toLowerCase().replace(/\s+/g, '');
 
-                const matchName = searchText === '' || rowName.includes(searchText);
-                const matchSpd = spdValue === '' || rowSpd.includes(spdValue);
-                const matchEdu = eduValue === '' || rowEdu.includes(eduValue);
-                const matchSchool = schoolValue === '' || rowSchool.includes(schoolValue);
-                const matchGen = genValue === '' || rowGen.includes(genValue);
+                const matchName = searchText === '' || rowName.includes(searchText);
+                const matchSpd = spdValue === '' || rowSpd.includes(spdValue);
+                const matchEdu = eduValue === '' || rowEdu.includes(eduValue);
+                const matchSchool = schoolValue === '' || rowSchool.includes(schoolValue);
+                const matchGen = genValue === '' || rowGen.includes(genValue);
 
-                return matchName && matchSpd && matchEdu && matchSchool && matchGen;
-            });
+                return matchName && matchSpd && matchEdu && matchSchool && matchGen;
+            });
 
-            currentDisplayData = filtered;
-            updateDashboard(currentDisplayData);
-        }
+            currentDisplayData = filtered;
+            updateDashboard(currentDisplayData);
+        }
 
-        searchInput.addEventListener('input', filterData);
-        spdFilter.addEventListener('change', filterData);
-        eduFilter.addEventListener('change', filterData);
-        schoolFilter.addEventListener('change', filterData);
-        genFilter.addEventListener('change', filterData);
+        searchInput.addEventListener('input', filterData);
+        spdFilter.addEventListener('change', filterData);
+        eduFilter.addEventListener('change', filterData);
+        schoolFilter.addEventListener('change', filterData);
+        genFilter.addEventListener('change', filterData);
 
-        btnReset.addEventListener('click', () => {
-            searchInput.value = '';
-            spdFilter.value = '';
-            eduFilter.value = '';
-            schoolFilter.value = '';
-            genFilter.value = '';
-            if(allData.length > 0) {
-                currentDisplayData = [...allData];
-                updateDashboard(currentDisplayData);
-            }
-        });
+        btnReset.addEventListener('click', () => {
+            searchInput.value = '';
+            spdFilter.value = '';
+            eduFilter.value = '';
+            schoolFilter.value = '';
+            genFilter.value = '';
+            if(allData.length > 0) {
+                currentDisplayData = [...allData];
+                updateDashboard(currentDisplayData);
+            }
+        });
 
-        // ระบบดาวน์โหลดไฟล์ Excel
-        btnDownloadExcel.addEventListener('click', () => {
-            if(!currentDisplayData || currentDisplayData.length === 0) {
-                alert("ไม่มีข้อมูลสำหรับดาวน์โหลด");
-                return;
-            }
+        // ระบบดาวน์โหลดไฟล์ Excel
+        btnDownloadExcel.addEventListener('click', () => {
+            if(!currentDisplayData || currentDisplayData.length === 0) {
+                alert("ไม่มีข้อมูลสำหรับดาวน์โหลด");
+                return;
+            }
 
-            let exportData = currentDisplayData.map(row => {
-                let formattedRow = {};
-                displayHeaders.forEach(header => {
-                    formattedRow[header] = row[header] || "-";
-                });
-                return formattedRow;
-            });
+            let exportData = currentDisplayData.map(row => {
+                let formattedRow = {};
+                displayHeaders.forEach(header => {
+                    formattedRow[header] = row[header] || "-";
+                });
+                return formattedRow;
+            });
 
-            let ws = XLSX.utils.json_to_sheet(exportData);
-            let wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "รายชื่อหมอดินอาสา");
-            
-            XLSX.writeFile(wb, "ข้อมูลหมอดินอาสาในโรงเรียน.xlsx");
-        });
-    </script>
+            let ws = XLSX.utils.json_to_sheet(exportData);
+            let wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "รายชื่อหมอดินอาสา");
+            
+            XLSX.writeFile(wb, "ข้อมูลหมอดินอาสาในโรงเรียน.xlsx");
+        });
+    </script>
 </body>
 </html>
